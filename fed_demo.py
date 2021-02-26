@@ -9,3 +9,4 @@ scores = fed.evaluate(conversation,
                       model, 
                       tokenizer)
 
+print(scores)
