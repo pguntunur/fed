@@ -1,4 +1,4 @@
-# import fed
+import fed
 
 # Load model
 model, tokenizer = fed.load_models("microsoft/DialoGPT-large")
@@ -13,9 +13,13 @@ model, tokenizer = fed.load_models("microsoft/DialoGPT-large")
 #
 # print(scores)
 
+print("Model loaded.")
+
 # Using this model with our chat-eval data
 
 import pandas as pd
+from tqdm import tqdm
+
 
 tc_usr_dataTSV = "../../../chatbot-eval/tc_usr_data.tsv"
 tc_fed_scores = "../../../chatbot-eval/tc_fed_scores.tsv"
@@ -24,12 +28,16 @@ tc_fed_scores = "../../../chatbot-eval/tc_fed_scores.tsv"
 # tc_fed_scores = "../chatbot-eval/tc_fed_scores.tsv"
 
 tc_usr_dataTSV_r = pd.read_csv(tc_usr_dataTSV, sep="\t")
-out_df = pd.DataFrame(tc_usr_dataTSV_r["context"])
+out_df = pd.DataFrame(tc_usr_dataTSV_r["context"][:20])
 out_df["fed_scores"] = ""
 
 # Change text format of chateval dataset according to input in fed.py
-for i, row in out_df.iterrows():
+for i, row in tqdm(out_df.iterrows(), total=20):
     out_df.at[i,'fed_scores'] = fed.evaluate(row["context"], model, tokenizer)
+
+print("Scores evaluated.")
 
 with open(tc_fed_scores,'w') as write_tsv:
     write_tsv.write(out_df.to_csv(sep='\t', index=False))
+
+print("Done.")
