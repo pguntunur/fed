@@ -22,4 +22,4 @@ tc_fed_scores = "../../../chatbot-eval/tc_fed_scores.tsv"
 
 tc_usr_dataTSV_r = pd.read_csv(tc_usr_dataTSV, sep="\t")
 
-print(tsv_read.head(10))
+print(tc_usr_dataTSV_r.head(10))
