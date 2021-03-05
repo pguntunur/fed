@@ -19,6 +19,8 @@ print("Model loaded.")
 
 import pandas as pd
 from tqdm import tqdm
+from pandarallel import pandarallel
+
 
 
 tc_usr_dataTSV = "../../../chatbot-eval/tc_usr_data.tsv"
@@ -32,8 +34,13 @@ out_df = pd.DataFrame(tc_usr_dataTSV_r["context"][:20])
 out_df["fed_scores"] = ""
 
 # Change text format of chateval dataset according to input in fed.py
-for i, row in tqdm(out_df.iterrows(), total=20):
-    out_df.at[i,'fed_scores'] = fed.evaluate(row["context"], model, tokenizer)
+tqdm.pandas(desc="my bar!")
+def func(context_str):
+    return fed.evaluate(context_str, model, tokenizer)
+
+out_df['fed_scores'] = out_df["context"].progress_apply(func, axis=1)
+# for i, row in tqdm(out_df.iterrows(), total=20):
+    # out_df.at[i,'fed_scores'] = fed.evaluate(row["context"], model, tokenizer)
 
 print("Scores evaluated.")
 
