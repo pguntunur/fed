@@ -15,7 +15,7 @@ model, tokenizer = fed.load_models("microsoft/DialoGPT-large")
 
 print("Model loaded.")
 
-# Using this model with our chat-eval data
+# Using this model with our tc/pc data
 
 import pandas as pd
 from tqdm import tqdm
