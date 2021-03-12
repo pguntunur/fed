@@ -8,7 +8,7 @@ from torch.utils.data.distributed import DistributedSampler
 
 
 import math
-from transformers import AutoTokenizer, AutoModelWithLMHead
+from transformers import AutoTokenizer, AutoModelForCausalLM
 
 # Old loading code. Use for from-scratch models
 #tokenizer = GPT2Tokenizer.from_pretrained('dialogpt')
@@ -22,14 +22,15 @@ from transformers import AutoTokenizer, AutoModelWithLMHead
 
 def load_models(name="microsoft/DialoGPT-large"):
   tokenizer = AutoTokenizer.from_pretrained(name)
-  model = AutoModelWithLMHead.from_pretrained(name)
+  model = AutoModelForCausalLM.from_pretrained(name)
+
   model.to("cuda")
   return model, tokenizer
 
 def score(text, tokenizer, model):
   if not text.startswith("<|endoftext|> "):
     text = "<|endoftext|> " + text
-  input_ids = torch.tensor(tokenizer.encode(text)).unsqueeze(0)  # Batch size 1
+  input_ids = torch.tensor(tokenizer.encode(text)).cuda().unsqueeze(0)  # Batch size 1
   tokenize_input = tokenizer.tokenize(text)
   #50256 is the token_id for <|endoftext|>
   tensor_input = torch.tensor([ tokenizer.convert_tokens_to_ids(tokenize_input)]).cuda()
@@ -37,7 +38,7 @@ def score(text, tokenizer, model):
       outputs = model(tensor_input, labels=tensor_input)
       loss, logits = outputs[:2]
 
-  return loss.item() 
+  return loss.item()
 
 def evaluate(conversation, model, tokenizer):
   scores = {}
@@ -82,16 +83,16 @@ def evaluate(conversation, model, tokenizer):
     # Positive score
     high_score = 0
     for m in pos:
-      hs = score(conversation + " <|endoftext|> " + m, tokenizer, model) 
-      high_score += hs 
+      hs = score(conversation + " <|endoftext|> " + m, tokenizer, model)
+      high_score += hs
 
     high_score = high_score/max(len(pos), 1)
 
     # Negative score
     low_score = 0
     for m in neg:
-      ls = score(conversation + " <|endoftext|> " + m, tokenizer, model) 
-      low_score += ls 
+      ls = score(conversation + " <|endoftext|> " + m, tokenizer, model)
+      low_score += ls
     low_score = low_score/max(len(neg), 1)
 
     scores[metric] = (low_score - high_score)
@@ -145,16 +146,16 @@ def evaluate(conversation, model, tokenizer):
     # Positive
     high_score = 0
     for m in pos:
-      hs = score(conversation + " <|endoftext|> " + m, tokenizer, model) 
-      high_score += hs 
+      hs = score(conversation + " <|endoftext|> " + m, tokenizer, model)
+      high_score += hs
 
     high_score = high_score/max(len(pos), 1)
 
     # Negative
     low_score = 0
     for m in neg:
-      ls = score(conversation + " <|endoftext|> " + m, tokenizer, model) 
-      low_score += ls 
+      ls = score(conversation + " <|endoftext|> " + m, tokenizer, model)
+      low_score += ls
     low_score = low_score/max(len(neg), 1)
 
     scores[metric] = (low_score - high_score)
