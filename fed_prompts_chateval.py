@@ -10,7 +10,8 @@ print("Model loaded.")
 prompt_dataCSV = "../../../chatbot-eval/turksData/prompts.csv"
 prompt_fed_scores = "../../../chatbot-eval/turksData/prompt_fed_scores.tsv"
 
-prompt_data = pd.read_csv(tc_usr_dataTSV, sep=",")
+prompt_data = pd.read_csv(prompt_dataCSV, sep=",")
+out_df = pd.DataFrame(prompt_data)
 out_df["fed_scores"] = ""
 
 # potentially delete escape characters and see if that affects the FED model?
