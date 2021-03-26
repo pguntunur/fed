@@ -7,8 +7,8 @@ model, tokenizer = fed.load_models("microsoft/DialoGPT-large")
 print("Model loaded.")
 
 # Using this model with our chat-eval data
-res_dataCSV = "../../../chatbot-eval/turksData/model_responses.csv"
-res_fed_scores = "../../../chatbot-eval/turksData/res_fed_scores.tsv"
+res_dataCSV = "../../../chatbot-eval/model_responses.csv"
+res_fed_scores = "../../../chatbot-eval/res_fed_scores.tsv"
 
 res_data = pd.read_csv(res_dataCSV, sep=",")
 out_df = pd.DataFrame(res_data)
@@ -18,8 +18,8 @@ out_df["fed_scores"] = ""
 tqdm.pandas(desc="Evaluating model responses with FED")
 def fed_apply(context_str):
     return fed.evaluate(context_str, model, tokenizer)
-
-out_df['fed_scores'] = out_df["prompt_text"].progress_apply(fed_apply)
+# out_df = out_df[:20]
+out_df['fed_scores'] = out_df["response_text"].progress_apply(fed_apply)
 print("Scores evaluated.")
 
 with open(res_fed_scores,'w') as write_tsv:
